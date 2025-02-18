@@ -1,0 +1,55 @@
+name: 'Terraform'
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+
+env:
+  ARM_SUBSCRIPTION_ID: "cc7e42fb-6f61-4086-9429-b0b5aeee13a2"
+  ARM_TENANT_ID: "bd14b608-3047-4aba-b5ec-d4988e66af83"
+
+jobs:
+  terraform:
+    name: 'Terraform ${{ matrix.environment }}'
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        environment: [uat, prod]
+    
+    steps:
+    - uses: actions/checkout@v3
+
+    - name: Azure Login
+      uses: azure/login@v1
+      with:
+        client-id: ${{ secrets.AZURE_CLIENT_ID }}
+        tenant-id: ${{ secrets.AZURE_TENANT_ID }}
+        subscription-id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
+
+    - name: Setup Terraform
+      uses: hashicorp/setup-terraform@v2
+      with:
+        terraform_version: "1.5.0"
+
+    - name: Terraform Format
+      run: terraform fmt -check -recursive
+
+    - name: Terraform Init
+      run: |
+        cd environments/${{ matrix.environment }}
+        terraform init \
+          -backend-config="subscription_id=${{ env.ARM_SUBSCRIPTION_ID }}" \
+          -backend-config="tenant_id=${{ env.ARM_TENANT_ID }}"
+
+    - name: Terraform Plan
+      run: |
+        cd environments/${{ matrix.environment }}
+        terraform plan
+
+    - name: Terraform Apply
+      if: github.ref == 'refs/heads/main' && github.event_name == 'push'
+      run: |
+        cd environments/${{ matrix.environment }}
+        terraform apply -auto-approve 
