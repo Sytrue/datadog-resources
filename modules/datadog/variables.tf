@@ -3,6 +3,24 @@ variable "environment" {
   type        = string
 }
 
+variable "bckc_url" {
+  description = "BCKC TrueCost URL"
+  type        = string
+  default     = "bckc-uat.claimlogiq.com"
+}
+
+variable "teams_channel" {
+  description = "Teams channel for notifications"
+  type        = string
+  default     = "@teams-BCKC-Outages"
+}
+
+variable "teams_email" {
+  description = "Teams email for notifications"
+  type        = string
+  default     = "@29e0b7c6.apixio.com@amer.teams.ms"
+}
+
 variable "monitor_name" {
   description = "Base name for the monitor"
   type        = string
