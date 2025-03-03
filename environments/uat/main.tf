@@ -32,4 +32,13 @@ module "datadog_monitors" {
   alert_message   = "UAT Environment: CPU usage is above threshold"
   threshold       = 85
   additional_tags = ["team:platform", "criticality:medium"]
+}
+
+# Update to only show CPU monitor details
+output "cpu_monitor_details" {
+  value = {
+    id   = module.datadog_monitors.bckc_cpu_monitor_id
+    name = module.datadog_monitors.bckc_cpu_monitor_name
+  }
 } 
+# Test comment

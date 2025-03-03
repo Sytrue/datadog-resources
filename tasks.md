@@ -1,4 +1,31 @@
-# Datadog Terraform Implementation Tasks
+# Project Tasks
+
+## Infrastructure Setup
+1. Base Infrastructure
+   - [x] Azure Key Vault
+   - [x] Terraform state storage
+   - [x] Access policies
+
+2. Environments
+   - [x] UAT Environment
+     - [x] State backend
+     - [x] Monitor configuration
+     - [x] Alert settings
+   - [x] PROD Environment
+     - [x] State backend
+     - [x] Monitor configuration
+     - [x] Alert settings
+
+3. Module Development
+   - [x] Datadog provider setup
+   - [x] Monitor resources
+   - [x] Variable definitions
+   - [x] Output configurations
+
+4. CI/CD Pipeline
+   - [x] GitHub Actions workflow
+   - [x] Environment-specific deployments
+   - [x] Security configurations
 
 ## Phase 1: Initial Setup and Base Configuration
 

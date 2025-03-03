@@ -1,29 +1,36 @@
-# Datadog Module
+# BCKC Datadog Monitors
 
-This module manages Datadog resources using credentials stored in Azure Key Vault.
+This module manages BCKC TrueCost monitoring in Datadog.
+
+## Features
+- HTTP Check Monitor with combined Check and Cluster alerts
+- Teams notifications integration
+- Environment-specific configurations
 
 ## Usage
 ```hcl
-module "datadog_monitors" {
+module "bckc_monitors" {
   source = "../../modules/datadog"
 
-  environment     = "uat"
-  monitor_name    = "high-cpu-usage"
-  alert_message   = "CPU usage is above threshold"
-  threshold       = 85
-  additional_tags = ["team:platform"]
+  environment    = "uat"
+  bckc_url      = "bckc-uat.claimlogiq.com"
+  teams_channel = "@teams-BCKC-Outages"
+  teams_email   = "@29e0b7c6.apixio.com@amer.teams.ms"
 }
 ```
-
-## Requirements
-- Access to Azure Key Vault `clq-datadog-kv`
-- Datadog API and APP keys stored in the vault
 
 ## Variables
 | Name | Description | Type | Default |
 |------|-------------|------|---------|
-| environment | Environment name (e.g., uat, prod) | string | - |
-| monitor_name | Base name for the monitor | string | "high-cpu-usage" |
-| alert_message | Alert message to be sent | string | "CPU usage is too high" |
-| threshold | Alert threshold value | number | 80 |
-| additional_tags | Additional tags to add | list(string) | [] |
+| environment | Environment name (uat/prod) | string | - |
+| bckc_url | BCKC TrueCost URL | string | bckc-uat.claimlogiq.com |
+| teams_channel | Teams channel for notifications | string | @teams-BCKC-Outages |
+| teams_email | Teams email for notifications | string | @29e0b7c6.apixio.com@amer.teams.ms |
+
+## Alert Configuration
+- Check Alert:
+  - Warning: 2 consecutive failures
+  - Critical: 3 consecutive failures
+- Cluster Alert:
+  - Warning: 40% failure rate
+  - Critical: 50% failure rate
