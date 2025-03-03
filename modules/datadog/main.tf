@@ -87,3 +87,58 @@ EOF
     "monitor:cpu"
   ]
 }
+
+# BSC UAT HTTP Check Monitor
+resource "datadog_monitor" "bsc_http_check" {
+  name    = "BSC TEST - ${upper(var.environment)} - TRUECOST - https://bsc-${var.environment}.claimlogiq.com - HTTP CHECK"
+  type    = "service check"
+  message = <<EOF
+{{#is_alert}}
+🔥 **HTTP Check Failed**
+### **Issue:** Cannot establish HTTP connection to BSC ${upper(var.environment)} TrueCost
+
+**Details:**
+- URL: https://bsc-${var.environment}.claimlogiq.com
+- Environment: ${upper(var.environment)}
+- Status: {{check_message}}
+
+### **⚠️ Impact:** Service might be unreachable
+
+# Notifications commented out for testing
+#${var.teams_channel}
+{{/is_alert}}
+
+{{#is_recovery}}
+✅ **HTTP Check Recovered**
+- URL: https://bsc-${var.environment}.claimlogiq.com
+- Environment: ${upper(var.environment)}
+- Status: {{check_message}}
+
+Service is now reachable.
+
+# Notifications commented out for testing
+#${var.teams_channel}
+{{/is_recovery}}
+EOF
+
+  query = "\"http.can_connect\".over(\"instance:bsc_${var.environment}_status\").by(\"host\",\"instance\").last(2).count_by_status()"
+
+  monitor_thresholds {
+    warning  = 2    # Warning after 2 failures
+    critical = 3    # Critical after 3 failures
+  }
+
+  # Evaluation Settings
+  notify_no_data    = true
+  no_data_timeframe = 10
+  renotify_interval = 30
+  include_tags      = true
+
+  tags = [
+    "env:${var.environment}",
+    "managed-by:terraform",
+    "application:truecost",
+    "url:bsc-${var.environment}.claimlogiq.com",
+    "monitor:http"
+  ]
+}
