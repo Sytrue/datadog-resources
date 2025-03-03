@@ -11,8 +11,7 @@
      terraform-states/
      └── datadog/
          ├── base/
-         ├── dev/
-         ├── staging/
+         ├── uat/
          └── prod/
      ```
 
@@ -24,8 +23,7 @@
      ├── modules/
      │   └── datadog/
      └── environments/
-         ├── dev/
-         ├── staging/
+         ├── uat/
          └── prod/
      ```
    - Initialize git repository
