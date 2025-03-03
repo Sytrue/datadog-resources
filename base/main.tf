@@ -16,13 +16,14 @@ resource "azurerm_key_vault" "datadog_vault" {
 
   # Add network rules
   network_acls {
-    bypass         = "AzureServices"
-    default_action = "Deny"
-    ip_rules       = [
+    bypass                     = "AzureServices"
+    default_action            = "Deny"
+    ip_rules                  = [
       "71.235.215.47/32",    # Your IP
       "20.51.0.0/16",        # GitHub Actions Azure
       "20.75.0.0/16"         # GitHub Actions Azure
     ]
+    virtual_network_subnet_ids = []  # Add if you have specific subnets
   }
 }
 
@@ -31,14 +32,24 @@ resource "azurerm_key_vault_secret" "datadog_api_key" {
   name            = "datadog-api-key"
   value           = var.datadog_api_key
   key_vault_id    = azurerm_key_vault.datadog_vault.id
-  content_type    = "api-key"
-  expiration_date = timeadd(timestamp(), "8760h")  # 1 year from creation
+  content_type    = "application/json"  # Specify content type
+  expiration_date = timeadd(timestamp(), "8760h")  # 1 year
+
+  tags = {
+    environment = "shared"
+    managed_by  = "terraform"
+  }
 }
 
 resource "azurerm_key_vault_secret" "datadog_app_key" {
   name            = "datadog-app-key"
   value           = var.datadog_app_key
   key_vault_id    = azurerm_key_vault.datadog_vault.id
-  content_type    = "app-key"
-  expiration_date = timeadd(timestamp(), "8760h")  # 1 year from creation
+  content_type    = "application/json"  # Specify content type
+  expiration_date = timeadd(timestamp(), "8760h")  # 1 year
+
+  tags = {
+    environment = "shared"
+    managed_by  = "terraform"
+  }
 } 
