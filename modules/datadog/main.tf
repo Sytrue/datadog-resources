@@ -29,38 +29,40 @@ provider "datadog" {
 }
 
 # BCKC UAT CPU Monitor
-resource "datadog_monitor" "bckc_uat_cpu" {
-  name    = "BCKC - UAT - TRUECOST - CPU Usage Alert"
+resource "datadog_monitor" "bckc_cpu" {
+  name    = "BCKC - ${upper(var.environment)} - TRUECOST - CPU Usage Alert"
   type    = "metric alert"
   message = <<EOF
 {{#is_alert}}
 🔥🔥🔥
 ## **HIGH CPU USAGE DETECTED!**
-### **Issue:** High CPU utilization on BCKC UAT TrueCost server
+### **Issue:** High CPU utilization on BCKC ${upper(var.environment)} TrueCost server
 
 **Metrics:**
 - CPU Usage: {{value}}%
 - Host: {{host.name}}
-- Environment: UAT
+- Environment: ${upper(var.environment)}
 
 ### **⚠️ Impact:** This may affect TrueCost performance
 
-@teams-BCKC-Outages
+# Notifications commented out for testing
+#${var.teams_channel}
 {{/is_alert}}
 
 {{#is_recovery}}
 ## **CPU Usage Normalized**
 - Current Usage: {{value}}%
 - Host: {{host.name}}
-- Environment: UAT
+- Environment: ${upper(var.environment)}
 
 System has returned to normal operation.
 
-@teams-BCKC-Outages
+# Notifications commented out for testing
+#${var.teams_channel}
 {{/is_recovery}}
 EOF
 
-  query = "avg(last_5m):avg:system.cpu.user{host:bckc-uat.claimlogiq.com} + avg:system.cpu.system{host:bckc-uat.claimlogiq.com} > 80"
+  query = "avg(last_5m):avg:system.cpu.user{host:bckc-${var.environment}.claimlogiq.com} + avg:system.cpu.system{host:bckc-${var.environment}.claimlogiq.com} > ${var.threshold}"
 
   monitor_thresholds {
     critical          = 80  # Alert when CPU > 80%
@@ -78,10 +80,10 @@ EOF
   include_tags       = true
 
   tags = [
-    "env:uat",
+    "env:${var.environment}",
     "managed-by:terraform",
     "application:truecost",
-    "url:bckc-uat.claimlogiq.com",
+    "url:bckc-${var.environment}.claimlogiq.com",
     "monitor:cpu"
   ]
 }
