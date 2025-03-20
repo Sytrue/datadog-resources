@@ -24,10 +24,16 @@ terraform {
 
 module "datadog_monitors" {
   source = "../../modules/datadog"
+<<<<<<< Updated upstream
 
   environment     = "prod"
   monitor_name    = "high-cpu-usage"
   alert_message   = "PROD Environment: CPU usage is above threshold! Please investigate immediately."
   threshold       = 80  # More strict threshold for production
   additional_tags = ["team:platform", "criticality:high"]
+=======
+  environment = "prod"
+  threshold = 80  # Stricter threshold
+  # Other PROD-specific settings
+>>>>>>> Stashed changes
 } 

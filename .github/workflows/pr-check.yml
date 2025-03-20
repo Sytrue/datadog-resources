@@ -1,0 +1,60 @@
+name: 'Pull Request Check'
+
+on:
+  pull_request:
+    branches: [ main ]
+
+permissions:
+  id-token: write
+  contents: read
+
+jobs:
+  terraform-check:
+    name: 'Terraform Check'
+    runs-on: ubuntu-latest
+    
+    steps:
+    - uses: actions/checkout@v3
+
+    - name: Setup Terraform
+      uses: hashicorp/setup-terraform@v2
+      with:
+        terraform_version: "1.5.0"
+
+    - name: Run Checkov
+      uses: bridgecrewio/checkov-action@master
+      with:
+        directory: .
+        framework: terraform
+
+    - name: Terraform Format
+      run: terraform fmt -check -recursive
+
+    - name: Azure Login
+      uses: azure/login@v1
+      with:
+        client-id: ${{ secrets.AZURE_CLIENT_ID }}
+        tenant-id: ${{ secrets.AZURE_TENANT_ID }}
+        subscription-id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
+
+    - name: Check Module
+      run: |
+        cd modules/datadog
+        terraform init -backend=false
+        terraform validate
+
+    - name: Plan UAT Environment
+      run: |
+        cd environments/uat
+        terraform init
+        terraform plan -no-color > plan.txt
+        echo "UAT Plan:" >> $GITHUB_STEP_SUMMARY
+        cat plan.txt >> $GITHUB_STEP_SUMMARY
+
+    - name: Plan PROD Environment
+      run: |
+        cd environments/prod
+        terraform init
+        terraform plan -no-color > plan.txt
+        echo "PROD Plan:" >> $GITHUB_STEP_SUMMARY
+        cat plan.txt >> $GITHUB_STEP_SUMMARY 

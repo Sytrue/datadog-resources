@@ -26,3 +26,9 @@ variable "additional_tags" {
   type        = list(string)
   default     = []
 }
+
+variable "bckc_host_name" {
+  description = "BCKC host name for monitoring"
+  type        = string
+  default     = "bckc-truecost-uat-east-web"  # Default for UAT
+}
